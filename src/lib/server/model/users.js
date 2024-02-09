@@ -25,8 +25,8 @@ export function getUserById(id){
       WHERE id=${id};
     `,
     (err,row)=>{
-      if(err) reject(err)
-      resolve(row)
+      if(err) reject(err);
+      resolve(row);
     });
   });
 }
@@ -39,8 +39,8 @@ export async function getUserByUsername(username){
       WHERE username='${username}';
     `,
     (err,row)=>{
-      if(err) reject(err)
-      resolve(row)
+      if(err) reject(err);
+      resolve(row);
     });
   });
 }
@@ -54,18 +54,52 @@ export async function getAllUsers(){
     `,
     (err,row)=>{
       if(err) return err;
-      users.push(row)
+      users.push(row);
     },
     (err)=>{
-      if(err) reject(err)
-      resolve(users)
+      if(err) reject(err);
+      resolve(users);
     });
   });
 }
 
-export function deleteUserbyId(id){
+export async function createSessionId(sessionId,userId){
+  console.log(sessionId,userId)
+  if(!sessionId || !userId) return 'undefined id';
   db.run(`
-    DELETE FROM users
-    WHERE id=${id};
+    INSERT INTO sessions(sessionId,userId)
+    VALUES('${sessionId}',${userId});
+  `)
+}
+
+export async function destroySessionIdbyUserId(userId){
+  if(!userId){
+    console.log('userId is null');
+    return null;
+  }
+  
+  db.run(`
+    DELETE FROM sessions
+    WHERE userId=${userId};
   `);
+}
+
+export async function getUserBySessionId(sessionId){
+  if(!sessionId){
+    console.log('sessionId is null');
+    return null;
+  }
+  
+  return new Promise((resolve,reject)=>{
+    db.get(`
+      SELECT * FROM sessions 
+      JOIN users
+      ON sessions.userId=users.userId;
+    `,
+    (err,row)=>{
+      if(err) reject(err);
+      console.log('found at the database:',row)
+      resolve(row);
+    });
+  });
 }

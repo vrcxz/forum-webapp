@@ -1,6 +1,39 @@
-import { getUserByUsername } from '$lib/server/model/users.js'
+import { getUserByUsername,
+         getUserBySessionId,
+         createSessionId,
+         destroySessionIdbyUserId } from '$lib/server/model/users.js'
 
-export async function authenticate(cookies,request){
+//shouldn't be exported/exposed
+//much more secure to be accessed only within authenticate() function
+function createSession(cookies,userId){
+  const sessionId = crypto.randomUUID();
+  cookies.set('sessionid',
+              JSON.stringify({sessionId}),
+              {
+                path:'/',
+                httpOnly: true
+              }
+  );
+  createSessionId(sessionId,userId);
+}
+
+export async function destroySession(cookies,locals){
+  const sessionId = cookies.get('sessionid');
+  const userData = await getUserBySessionId(sessionId);
+  
+  if(userData){
+    console.log('destroying sessionid')
+    destroySessionIdbyUserId(userData['userId']);
+  }
+  
+  cookies.delete('sessionid',{
+    path:'/',
+    httpOnly: true
+  });
+  locals.username = null;
+}
+
+export async function authenticate(cookies,request,locals){
   const formData = await request.formData();
   console.log('form:',formData)
   
@@ -23,25 +56,25 @@ export async function authenticate(cookies,request){
   }
   
   //success
-  const sessionId = crypto.randomUUID();
-  cookies.set('session',
-              JSON.stringify({sessionId}),
-              {
-                path:'/',
-                httpOnly: true
-              }
-  );
+  createSession(cookies,userData['userId']);
+  locals.username = username;
+  
   return {
       status: 'login successful'
     };
 }
 
-export function isLoggedIn(cookies){
-  const session = cookies.get('session');
-  console.log('session:',session);
-  if(!session){
+export async function isLoggedIn(cookies){
+  const sessionId = cookies.get('sessionid');
+  console.log('sessionid:',sessionId);
+  if(!sessionId){
     console.log('not logged in');
     return false;
+  }
+  
+  const userData = await getUserBySessionId(sessionId);
+  if(!userData){
+    console.log('invalid sessionId! Must ban!');
   }
   
   console.log('logged in');
