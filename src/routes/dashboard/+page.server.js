@@ -1,7 +1,7 @@
 
 export async function load({cookies,locals}){
-  console.log('dashnoard')
+  console.log('dashnoard',locals)
   return {
-    data: locals.username
+    username: locals.username ?? ''
   }
 }

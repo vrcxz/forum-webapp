@@ -64,7 +64,7 @@ export async function authenticate(cookies,request,locals){
     };
 }
 
-export async function isLoggedIn(cookies){
+export async function isLoggedIn(cookies,locals){
   const sessionId = cookies.get('sessionid');
   console.log('sessionid:',sessionId);
   if(!sessionId){
@@ -72,7 +72,10 @@ export async function isLoggedIn(cookies){
     return false;
   }
   
+  //ugly locals side-effect
   const userData = await getUserBySessionId(sessionId);
+  locals.username = userData['username'];
+  
   if(!userData){
     console.log('invalid sessionId! Must ban!');
   }
