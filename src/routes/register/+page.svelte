@@ -5,5 +5,5 @@
 
 <Navbar/>
 <div class="container">
-  <UserForm title="Register"/>
+  <UserForm title="Register" link="/register"/>
 </div>

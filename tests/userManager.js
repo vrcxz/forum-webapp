@@ -1,3 +1,7 @@
-import { registerUser,getUserById } from '../src/lib/server/model/userManager.js';
+import { getUserByUsername,getUserById } from '../src/lib/server/model/userManager.js';
 
-console.log(getUserById(1))
+async function test(){
+  let res = await getUserByUsername('von')
+  console.log(res)
+}
+test()
