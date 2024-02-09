@@ -4,7 +4,7 @@
 
 <nav class="navbar navbar-light bg-light">
   <div class="container-fluid">
-    <a href="#" class="navbar-brand">{title}</a>
+    <div class="navbar-brand">{title}</div>
     <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
       <span class="navbar-toggler-icon"></span>
     </button>

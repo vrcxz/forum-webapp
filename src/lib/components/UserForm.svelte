@@ -8,7 +8,7 @@
     <h3>{title}</h3>
   </div>
   <div class="card-body">
-    <form action="{link}">
+    <form action="{link}" method="post">
       <div class="mb-3">
         <label for="username">Username</label>
         <input type="text" name="username" class="form-control">
