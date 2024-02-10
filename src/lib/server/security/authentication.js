@@ -1,4 +1,5 @@
-import { getUserByUsername,
+import { createUser,
+         getUserByUsername,
          getUserBySessionId,
          createSessionId,
          destroySessionIdbyUserId } from '$lib/server/model/users.js'
@@ -14,6 +15,7 @@ function createSession(cookies,userId){
                 httpOnly: true
               }
   );
+  console.log('user id got:',userId)
   createSessionId(sessionId,userId);
 }
 
@@ -33,10 +35,8 @@ export async function destroySession(cookies,locals){
   locals.username = null;
 }
 
-export async function authenticate(cookies,request,locals){
-  const formData = await request.formData();
-  console.log('form:',formData)
-  
+//pass formData instead of request pls
+export async function authenticate(cookies,formData){
   const username = formData.get('username');
   const password = formData.get('password');
   
@@ -45,24 +45,54 @@ export async function authenticate(cookies,request,locals){
   if(!userData){
     console.log('no user with that username exists')
     return {
-      status: 'user does not exists'
+      error: 'user does not exist',
+      status: 404
     };
   }
   
   if(password != userData['password']){
     return {
-      status: 'invalid credentials'
+      error: 'invalid credentials',
+      status: 401
     };
   }
   
-  //success
-  createSession(cookies,userData['userId']);
-  locals.username = username;
-  
   return {
-      status: 'login successful'
-    };
+    message: 'user identified',
+    data: {
+      userId: userData['userId']
+    },
+    status: 200
+  }
 }
+
+export async function loginUser(cookies,formData,locals){
+  const response = await authenticate(cookies,formData);
+  if(response.status == 200){
+    console.log('step')
+    createSession(cookies,response.data['userId']);
+  }
+}
+
+export async function registerUser(cookies,formData,locals){
+  const response = await authenticate(cookies,formData);
+  if(response.status == 404){
+    const user = {
+      username: formData.get('username'),
+      password: formData.get('password')
+    };
+    
+    if(!user.username || !user.password){
+      return {
+        error: 'undefined username or password',
+        status: 404
+      };
+    }
+    createUser(user);
+    console.log('user created!')
+  }
+}
+
 
 export async function isLoggedIn(cookies,locals){
   const sessionId = cookies.get('sessionid');
@@ -80,6 +110,6 @@ export async function isLoggedIn(cookies,locals){
     console.log('invalid sessionId! Must ban!');
   }
   
-  console.log('logged in');
+  console.log('logged in',locals);
   return true;
 }

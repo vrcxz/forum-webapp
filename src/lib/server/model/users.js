@@ -10,6 +10,11 @@ export function createUser(user){
   let username = user.username;
   let password = user.password;
   
+  if(!username || !password)
+    return {
+      status: 'create user failed: undefined username or password'
+    }
+  
   db.run(`
     INSERT INTO 
     users(username,password)

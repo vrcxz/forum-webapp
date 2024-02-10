@@ -1,8 +1,8 @@
-import { authenticate } from '$lib/server/security/authentication.js';
+import { loginUser } from '$lib/server/security/authentication.js';
 
 export const actions = {
   default: async ({cookies,request,locals}) => {
-    const user = await authenticate(cookies,request,locals);
-    console.log(user);
+    const formData = await request.formData();
+    await loginUser(cookies,formData,locals);
   }
 }
