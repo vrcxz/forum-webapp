@@ -2,7 +2,9 @@ import { isLoggedIn,destroySession } from '$lib/server/security/authentication.j
 
 export async function handle({event,resolve}){
   let {cookies,request,locals} = event;
+  console.log(locals)
   await isLoggedIn(cookies,locals);
+  
   const response = await resolve(event);
  
   return response;

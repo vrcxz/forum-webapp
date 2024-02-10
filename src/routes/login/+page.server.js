@@ -1,4 +1,4 @@
-import { loginUser } from '$lib/server/security/authentication.js';
+import { loginUser, isLoggedIn } from '$lib/server/security/authentication.js';
 import { redirect } from '@sveltejs/kit';
 
 export const actions = {

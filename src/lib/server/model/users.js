@@ -94,12 +94,34 @@ export async function getUserBySessionId(sessionId){
     console.log('sessionId is null');
     return null;
   }
+  console.log(sessionId)
   
   return new Promise((resolve,reject)=>{
     db.get(`
-      SELECT * FROM sessions 
-      JOIN users
-      ON sessions.userId=users.userId;
+      SELECT * FROM users 
+      JOIN sessions
+      ON sessions.userId=users.userId
+      WHERE sessions.sessionId='${sessionId}';
+    `,
+    (err,row)=>{
+      if(err) reject(err);
+      console.log('found at the database:',row)
+      resolve(row);
+    });
+  });
+}
+
+export async function getSessionIdByUserId(userId){
+  if(!userId){
+    return null;
+  }
+  
+  return new Promise((resolve,reject)=>{
+    db.get(`
+      SELECT * FROM users 
+      JOIN sessions
+      ON sessions.userId=users.userId
+      WHERE users.userId='${userId}';
     `,
     (err,row)=>{
       if(err) reject(err);

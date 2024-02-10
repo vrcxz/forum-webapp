@@ -9,13 +9,12 @@ import { createUser,
 function createSession(cookies,userId){
   const sessionId = crypto.randomUUID();
   cookies.set('sessionid',
-              JSON.stringify({sessionId}),
+               sessionId,
               {
                 path:'/',
                 httpOnly: true
               }
   );
-  console.log('user id got:',userId)
   createSessionId(sessionId,userId);
 }
 
@@ -24,7 +23,6 @@ export async function destroySession(cookies,locals){
   const userData = await getUserBySessionId(sessionId);
   
   if(userData){
-    console.log('destroying sessionid')
     destroySessionIdbyUserId(userData['userId']);
   }
   
@@ -43,7 +41,6 @@ export async function authenticate(cookies,formData){
   let userData = await getUserByUsername(username);
   
   if(!userData){
-    console.log('no user with that username exists')
     return {
       error: 'user does not exist',
       status: 404
@@ -67,11 +64,22 @@ export async function authenticate(cookies,formData){
 }
 
 export async function loginUser(cookies,formData,locals){
+  console.log('step1')
   const response = await authenticate(cookies,formData);
-  if(response.status == 200){
-    console.log('step')
+  console.log('step2')
+  if(response.status == 200 && !locals.username){
+    //check if session already exists in db
+    
+    //should be able to renew old session id
+    console.log('step3',sessionId)
+    if(user){
+      console.log('step3.5',user)
+      await destroySessionIdbyUserId(user['userId']);
+    }
     createSession(cookies,response.data['userId']);
   }
+  console.log('step4')
+  
 }
 
 export async function registerUser(cookies,formData,locals){
@@ -89,27 +97,27 @@ export async function registerUser(cookies,formData,locals){
       };
     }
     createUser(user);
-    console.log('user created!')
   }
 }
 
 
 export async function isLoggedIn(cookies,locals){
   const sessionId = cookies.get('sessionid');
-  console.log('sessionid:',sessionId);
   if(!sessionId){
-    console.log('not logged in');
     return false;
   }
   
-  //ugly locals side-effect
   const userData = await getUserBySessionId(sessionId);
-  locals.username = userData['username'];
   
   if(!userData){
-    console.log('invalid sessionId! Must ban!');
+    //invalid session! must have been tampered
+    //ban them!
+    destroySession(cookies,locals);
+    return false;
   }
   
+  //ugly session side-effect, refactor if possible
+  locals.username = userData['username'];
   console.log('logged in',locals);
   return true;
 }
