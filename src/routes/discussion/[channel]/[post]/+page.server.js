@@ -1,11 +1,22 @@
 import { redirect } from '@sveltejs/kit';
+import { getPost } from '$lib/server/model/posts.js';
 
-export function load({locals,params}){
+export async function load({ locals,params }){
   if(!locals.username){
     redirect(302,'/home');
   }
 
+const postData = await getPost(params.post);
+
+  const { postTitle,
+          postContent,
+          authorName } = postData
+  
+  console.log(postData)
+  
   return {
-    postId: params.post
-  }
+    postTitle,
+    postContent,
+    authorName
+  };
 }

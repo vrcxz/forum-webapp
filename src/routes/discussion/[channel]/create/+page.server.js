@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import { getUserByUsername } from '$lib/server/model/users.js';
+import { createPost,getChannel } from '$lib/server/model/posts.js';
 
 export const actions = {
   default: async ({ request,locals,params }) => {
@@ -7,10 +8,17 @@ export const actions = {
     const postTitle = formData.get('title');
     const postContent = formData.get('content');
     
+    console.log(postTitle)
+    
     const userData = await getUserByUsername(locals.username)
+    const channelData = await getChannel(params.channel);
     
-    console.log(postTitle,postContent,locals,userData,params);
-    
+    await createPost(channelData.channelId,
+                     channelData.channelName,
+                     postTitle,
+                     postContent,
+                     userData.userId,
+                     userData.username);
   }
 }
 

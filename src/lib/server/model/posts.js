@@ -1,3 +1,9 @@
+import sqlite3 from 'sqlite3';
+
+//must be absolute path!
+//because relative path or $lib doesnt work
+const db = new sqlite3.Database('/data/data/com.termux/files/home/node-apps/colab/src/lib/server/database/database.db');
+
 export async function createChannel(){
   db.run(`
     INSERT INTO
@@ -14,15 +20,43 @@ export async function getChannel(channelName){
     `,
     (err,row) => {
       if(err) reject(err);
-      return resolve(row;
+      return resolve(row);
     });
-  );
+  });
 }
 
-export async function createPost(channelName,post,user){
+export async function createPost(channelId,
+                                 channelName,
+                                 postTitle,
+                                 postContent,
+                                 authorId,
+                                 authorName){
   db.run(`
     INSERT INTO
-    posts(postTitle,postContent,authorId,authorName)
-    values();
+    posts(channelId,
+          channelName,
+          postTitle,
+          postContent,
+          authorId,
+          authorName)
+    values('${channelId}',
+           '${channelName}',
+           '${postTitle}',
+           '${postContent}',
+           '${authorId}',
+           '${authorName}');
   `);
+}
+
+export async function getPost(postId){
+  return new Promise((resolve,reject) => {
+    db.get(`
+      SELECT * FROM posts
+      WHERE postId='${postId}';
+    `,
+    (err,row) => {
+      if(err) reject(err);
+      return resolve(row);
+    });
+  });
 }

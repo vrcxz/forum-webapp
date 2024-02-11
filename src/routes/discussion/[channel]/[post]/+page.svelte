@@ -4,16 +4,24 @@
 </script>
 
 <Navbar signedIn=true />
-<div class="container">
-  <div class="card">
-    <div class="card-body">
-      <h2>Post Title {data.postId}</h2>
+<div class="container my-3">
+  <div class="card mb-3">
+    <div class="card-header">
+      <h3>{data.postTitle}</h3>
+      <div>by <span class="badge bg-primary">{data.authorName}</span></div>
+    </div>
+    <div class="card-body mb">
+      <div>{data.postContent}</div>
     </div>
   </div>
   
   <div class="card">
+    <div class="card-header d-flex justify-content-between">
+      <h5>Comments</h5>
+      <button class="btn btn-primary btn-sm">+</button>
+    </div>
     <div class="card-body">
-      <p>Post Comments {data.postId}</p>
+ 
     </div>
   </div>
 </div>
