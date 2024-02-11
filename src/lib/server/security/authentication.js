@@ -14,17 +14,25 @@ function createSession(cookies,userId){
               {
                 path:'/',
                 httpOnly: true
-              }
-  );
+              });
   createSessionId(sessionId,userId);
+}
+
+function setSession(cookies,sessionId){
+  cookies.set('sessionid',
+               sessionId,
+              {
+                path: '/',
+                httpOnly: true
+              });
 }
 
 export async function destroySession(cookies,locals){
   const sessionId = cookies.get('sessionid');
   const userData = await getUserBySessionId(sessionId);
-  
+ 
   if(userData){
-    destroySessionIdbyUserId(userData['userId']);
+    await destroySessionIdbyUserId(userData['userId']);
   }
   
   cookies.delete('sessionid',{
@@ -65,26 +73,18 @@ export async function authenticate(cookies,formData){
 }
 
 export async function loginUser(cookies,formData,locals){
-  console.log('step1')
   const response = await authenticate(cookies,formData);
-  console.log('step2')
-  if(response.status == 200 && !locals.username){
+
+  if(response.status == 200){
     //check if session already exists in db
     const sessionId = await getSessionIdByUserId(response.data.userId);
-    //should be able to renew old session id
-    console.log('step3',sessionId,response.data.userId)
-    if(!sessionId) return {
-      error: 'user has no existing session'
-    }
-    
     if(sessionId){
-      console.log('step3.5')
-      await destroySessionIdbyUserId(response.data.userId);
+      setSession(cookies,sessionId);
     }
-    createSession(cookies,response.data['userId']);
+    else{
+      createSession(cookies,response.data['userId']);
+    }
   }
-  console.log('step4')
-  
 }
 
 export async function registerUser(cookies,formData,locals){
@@ -117,13 +117,13 @@ export async function isLoggedIn(cookies,locals){
   if(!userData){
     //invalid session! must have been tampered
     //ban them!
-    destroySession(cookies,locals);
+    await destroySession(cookies,locals);
     locals = null;
     return false;
   }
   
   //ugly session side-effect, refactor if possible
   locals.username = userData['username'];
-  console.log('logged in',locals);
+  locals.role = 'user';
   return true;
 }

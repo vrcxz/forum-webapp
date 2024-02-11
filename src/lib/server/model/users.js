@@ -69,7 +69,6 @@ export async function getAllUsers(){
 }
 
 export async function createSessionId(sessionId,userId){
-  console.log(sessionId,userId)
   if(!sessionId || !userId) return 'undefined id';
   db.run(`
     INSERT INTO sessions(sessionId,userId)
@@ -94,7 +93,6 @@ export async function getUserBySessionId(sessionId){
     console.log('sessionId is null');
     return null;
   }
-  console.log(sessionId)
   
   return new Promise((resolve,reject)=>{
     db.get(`
@@ -105,7 +103,6 @@ export async function getUserBySessionId(sessionId){
     `,
     (err,row)=>{
       if(err) reject(err);
-      console.log('found at the database:',row)
       resolve(row);
     });
   });
@@ -125,8 +122,8 @@ export async function getSessionIdByUserId(userId){
     `,
     (err,row)=>{
       if(err) reject(err);
-      console.log('found at the database:',row)
-      resolve(row['sessionId']);
+      if(row) resolve(row['sessionId'])
+      else resolve(null);
     });
   });
 }

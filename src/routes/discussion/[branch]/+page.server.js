@@ -1,11 +1,11 @@
 import { redirect } from '@sveltejs/kit';
 
-export async function load({cookies,locals}){
+export function load({locals,params}){
   if(!locals.username){
     redirect(302,'/home');
   }
- 
+
   return {
-    username: locals.username ?? ''
+    postId: params.post
   }
 }
