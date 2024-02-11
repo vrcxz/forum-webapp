@@ -1,5 +1,6 @@
 import { createUser,
          getUserByUsername,
+         getSessionIdByUserId,
          getUserBySessionId,
          createSessionId,
          destroySessionIdbyUserId } from '$lib/server/model/users.js'
@@ -69,12 +70,16 @@ export async function loginUser(cookies,formData,locals){
   console.log('step2')
   if(response.status == 200 && !locals.username){
     //check if session already exists in db
-    
+    const sessionId = await getSessionIdByUserId(response.data.userId);
     //should be able to renew old session id
-    console.log('step3',sessionId)
-    if(user){
-      console.log('step3.5',user)
-      await destroySessionIdbyUserId(user['userId']);
+    console.log('step3',sessionId,response.data.userId)
+    if(!sessionId) return {
+      error: 'user has no existing session'
+    }
+    
+    if(sessionId){
+      console.log('step3.5')
+      await destroySessionIdbyUserId(response.data.userId);
     }
     createSession(cookies,response.data['userId']);
   }
@@ -113,6 +118,7 @@ export async function isLoggedIn(cookies,locals){
     //invalid session! must have been tampered
     //ban them!
     destroySession(cookies,locals);
+    locals = null;
     return false;
   }
   

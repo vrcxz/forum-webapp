@@ -126,7 +126,7 @@ export async function getSessionIdByUserId(userId){
     (err,row)=>{
       if(err) reject(err);
       console.log('found at the database:',row)
-      resolve(row);
+      resolve(row['sessionId']);
     });
   });
 }
