@@ -125,5 +125,6 @@ export async function isLoggedIn(cookies,locals){
   //ugly session side-effect, refactor if possible
   locals.username = userData['username'];
   locals.role = 'user';
+  locals.userId = userData['userId'];
   return true;
 }

@@ -48,6 +48,23 @@ export async function createPost(channelId,
   `);
 }
 
+
+export async function createComment(commentContent,authorId,authorName,postParentId,commentParentId){
+  db.run(`
+    INSERT INTO 
+    comments(commentContent,
+             authorId,
+             authorName,
+             postParentId,
+             commentParentId)
+    VALUES('${commentContent}',
+           ${authorId},
+           '${authorName}',
+           ${postParentId},
+           ${commentParentId});
+  `);
+}
+
 export async function getPost(postId){
   return new Promise((resolve,reject) => {
     db.get(`

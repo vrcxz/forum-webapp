@@ -8,10 +8,7 @@ export async function load({ locals,params }){
 
   const postData = await getPost(params.post);
   const commentDatas = await getPostComments(postData.postId);
-  console.log(commentDatas);
-
-  console.log(postData)
-  
+ 
   return {
     postData,
     commentDatas
