@@ -60,3 +60,22 @@ export async function getPost(postId){
     });
   });
 }
+
+
+export async function getPostComments(postId){
+  return new Promise((resolve,reject) => {
+    const comments = [];
+    
+    db.each(`
+      SELECT * FROM comments
+      WHERE postParentId=${postId};
+    `,
+    (err,row) => {
+      if(err) reject(err);
+      comments.push(row)
+    },
+    () => {
+      resolve(comments);
+    });
+  });
+}
